@@ -8,48 +8,86 @@
       class="form-control"
       placeholder="Search..."
       [(ngModel)]="searchQuery"
+      (ngModelChange)="currentPage = 1" 
     />
   </div>
 
+  <!-- Add Student Button -->
+  <button class="btn btn-sm btn-success me-2" (click)="addStudent()">Add Student</button>
+  <br />
+  <hr />
+
   <!-- Table -->
-  <button class="btn btn-sm btn-success me-2" (click)="addStudent()">Add Student</button> <br/>
-   <hr/>
   <div class="table-responsive">
     <table class="table table-hover table-striped align-middle">
-     <thead class="table-primary">
-  <tr>
-    <th (click)="sortData('firstName')" style="cursor: pointer">
-      First Name
-      <i *ngIf="sortColumn === 'firstName'" class="bi" 
-         [ngClass]="{'bi-arrow-up': sortDirection === 'asc', 'bi-arrow-down': sortDirection === 'desc'}"></i>
-    </th>
-    <th (click)="sortData('lastName')" style="cursor: pointer">
-      Last Name
-      <i *ngIf="sortColumn === 'lastName'" class="bi" 
-         [ngClass]="{'bi-arrow-up': sortDirection === 'asc', 'bi-arrow-down': sortDirection === 'desc'}"></i>
-    </th>
-    <th (click)="sortData('mobile')" style="cursor: pointer">
-      Mobile
-      <i *ngIf="sortColumn === 'mobile'" class="bi" 
-         [ngClass]="{'bi-arrow-up': sortDirection === 'asc', 'bi-arrow-down': sortDirection === 'desc'}"></i>
-    </th>
-    <th (click)="sortData('email')" style="cursor: pointer">
-      Email
-      <i *ngIf="sortColumn === 'email'" class="bi" 
-         [ngClass]="{'bi-arrow-up': sortDirection === 'asc', 'bi-arrow-down': sortDirection === 'desc'}"></i>
-    </th>
-    <th (click)="sortData('nic')" style="cursor: pointer">
-      NIC
-      <i *ngIf="sortColumn === 'nic'" class="bi" 
-         [ngClass]="{'bi-arrow-up': sortDirection === 'asc', 'bi-arrow-down': sortDirection === 'desc'}"></i>
-    </th>
-    <th>Action</th>
-  </tr>
-</thead>
+      <thead class="table-primary">
+        <tr>
+          <th (click)="sortData('firstName')" style="cursor: pointer">
+            First Name
+            <i
+              *ngIf="sortColumn === 'firstName'"
+              class="bi"
+              [ngClass]="{
+                'bi-arrow-up': sortDirection === 'asc',
+                'bi-arrow-down': sortDirection === 'desc'
+              }"
+            ></i>
+          </th>
+          <th (click)="sortData('lastName')" style="cursor: pointer">
+            Last Name
+            <i
+              *ngIf="sortColumn === 'lastName'"
+              class="bi"
+              [ngClass]="{
+                'bi-arrow-up': sortDirection === 'asc',
+                'bi-arrow-down': sortDirection === 'desc'
+              }"
+            ></i>
+          </th>
+          <th (click)="sortData('mobile')" style="cursor: pointer">
+            Mobile
+            <i
+              *ngIf="sortColumn === 'mobile'"
+              class="bi"
+              [ngClass]="{
+                'bi-arrow-up': sortDirection === 'asc',
+                'bi-arrow-down': sortDirection === 'desc'
+              }"
+            ></i>
+          </th>
+          <th (click)="sortData('email')" style="cursor: pointer">
+            Email
+            <i
+              *ngIf="sortColumn === 'email'"
+              class="bi"
+              [ngClass]="{
+                'bi-arrow-up': sortDirection === 'asc',
+                'bi-arrow-down': sortDirection === 'desc'
+              }"
+            ></i>
+          </th>
+          <th (click)="sortData('nic')" style="cursor: pointer">
+            NIC
+            <i
+              *ngIf="sortColumn === 'nic'"
+              class="bi"
+              [ngClass]="{
+                'bi-arrow-up': sortDirection === 'asc',
+                'bi-arrow-down': sortDirection === 'desc'
+              }"
+            ></i>
+          </th>
+          <th>Action</th>
+        </tr>
+      </thead>
 
-   <tbody>
+    <tbody>
+  <tr *ngIf="pagedStudents.length === 0">
+    <td colspan="6" class="text-center">No records found.</td>
+  </tr>
+
   <tr
-    *ngFor="let student of searchStudents(); let i = index"
+    *ngFor="let student of pagedStudents; let i = index"
     (click)="selectStudent(student, i)"
     [class.table-active]="selectedStudent?.id === student.id"
     style="cursor: pointer"
@@ -60,14 +98,14 @@
     <td>{{ student.email }}</td>
     <td>{{ student.nic }}</td>
     <td>
-      <button 
-        class="btn btn-sm btn-warning me-2" 
+      <button
+        class="btn btn-sm btn-warning me-2"
         (click)="editStudent(student); $event.stopPropagation()"
       >
         Edit
       </button>
-      <button 
-        class="btn btn-sm btn-danger" 
+      <button
+        class="btn btn-sm btn-danger"
         (click)="deleteStudent(student, $event)"
       >
         Delete
@@ -79,6 +117,27 @@
     </table>
   </div>
 
+  <!-- Pagination Controls -->
+  <nav aria-label="Page navigation" class="mt-3">
+    <ul class="pagination justify-content-center">
+      <li class="page-item" [class.disabled]="currentPage === 1">
+        <button class="page-link" (click)="prevPage()">Previous</button>
+      </li>
+
+      <li
+        class="page-item"
+        *ngFor="let page of [].constructor(totalPages); let idx = index"
+        [class.active]="currentPage === idx + 1"
+      >
+        <button class="page-link" (click)="goToPage(idx + 1)">{{ idx + 1 }}</button>
+      </li>
+
+      <li class="page-item" [class.disabled]="currentPage === totalPages">
+        <button class="page-link" (click)="nextPage()">Next</button>
+      </li>
+    </ul>
+  </nav>
+
   <!-- Student Detail -->
   <app-student-detail
     *ngIf="showDetails"
@@ -87,12 +146,12 @@
     (prev)="previousStudent()"
   ></app-student-detail>
 
+  <!-- Student Form -->
   <app-student-form
-  *ngIf="showAddForm"
-  [student]="selectedStudent"
-  (save)="saveStudent($event)"
-  (update)="updateStudent($event)"
-  (cancel)="cancelAddStudent()"
-></app-student-form>
-
+    *ngIf="showAddForm"
+    [student]="selectedStudent"
+    (save)="saveStudent($event)"
+    (update)="updateStudent($event)"
+    (cancel)="cancelAddStudent()"
+  ></app-student-form>
 </div>

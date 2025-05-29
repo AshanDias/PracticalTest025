@@ -17,6 +17,11 @@ export class StudentListComponent implements OnInit {
   isEditMode = false;
   sortColumn: string = '';
   sortDirection: 'asc' | 'desc' = 'asc';
+
+  // Pagination properties
+  pageSize: number = 5; // Change as you like
+  currentPage: number = 1;
+
   constructor(private studentService: StudentService) {}
 
   ngOnInit(): void {
@@ -57,15 +62,7 @@ export class StudentListComponent implements OnInit {
     }
   }
 
-  // searchStudents() {
-  //   return this.students.filter((s) =>
-  //     Object.values(s).some((val) =>
-  //       val?.toString().toLowerCase().includes(this.searchQuery.toLowerCase())
-  //     )
-  //   );
-  // }
-
-  searchStudents() {
+  searchStudents(): Student[] {
     let filtered = this.students.filter((student) =>
       Object.values(student).some((val) =>
         val?.toString().toLowerCase().includes(this.searchQuery.toLowerCase())
@@ -93,6 +90,34 @@ export class StudentListComponent implements OnInit {
     return filtered;
   }
 
+  // New computed property to get paged students
+  get pagedStudents(): Student[] {
+    const filtered = this.searchStudents();
+    const start = (this.currentPage - 1) * this.pageSize;
+    return filtered.slice(start, start + this.pageSize);
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.searchStudents().length / this.pageSize) || 1;
+  }
+
+  goToPage(page: number) {
+    if (page < 1 || page > this.totalPages) return;
+    this.currentPage = page;
+  }
+
+  nextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+    }
+  }
+
+  prevPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+
   sortData(column: string) {
     if (this.sortColumn === column) {
       // Toggle sort direction
@@ -113,18 +138,15 @@ export class StudentListComponent implements OnInit {
   }
 
   saveStudent(student: Student) {
-    // Handle create or update here
-    this.students.push({ ...student }); // Or call a service
+    this.students.push({ ...student });
     this.showAddForm = false;
   }
 
   updateStudent(student: Student) {
     const index = this.students.findIndex((s) => s.id === student.id);
     if (index !== -1) {
-      // Update existing student
       this.students[index] = { ...student };
     } else {
-      // If student not found, optionally add as new
       this.students.push({ ...student });
     }
     this.showAddForm = false;
@@ -138,7 +160,7 @@ export class StudentListComponent implements OnInit {
   }
 
   deleteStudent(student: Student, event: MouseEvent) {
-    event.stopPropagation(); // Prevent row click event
+    event.stopPropagation();
 
     Swal.fire({
       title: 'Are you sure?',
@@ -153,7 +175,6 @@ export class StudentListComponent implements OnInit {
       if (result.isConfirmed) {
         this.studentService.delete(student.id).subscribe({
           next: (response) => {
-            console.log('Student created successfully', response);
             const index = this.students.findIndex((s) => s.id === student.id);
             if (index !== -1) {
               this.students.splice(index, 1);
@@ -166,7 +187,7 @@ export class StudentListComponent implements OnInit {
             Swal.fire('Deleted!', 'Student has been deleted.', 'success');
           },
           error: (error) => {
-            console.error('Error creating student', error);
+            console.error('Error deleting student', error);
           },
         });
       }
