@@ -1,0 +1,51 @@
+<div class="container my-4">
+
+  <!-- Search Box -->
+  <div class="input-group mb-3">
+    <span class="input-group-text"><i class="bi bi-search"></i></span>
+    <input
+      type="text"
+      class="form-control"
+      placeholder="Search..."
+      [(ngModel)]="searchQuery"
+    />
+  </div>
+
+  <!-- Table -->
+  <div class="table-responsive">
+    <table class="table table-hover table-striped align-middle">
+      <thead class="table-primary">
+        <tr>
+          <th>First Name</th>
+          <th>Last Name</th>
+          <th>Mobile</th>
+          <th>Email</th>
+          <th>NIC</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="let student of searchStudents(); let i = index"
+          (click)="selectStudent(student, i)"
+          [class.table-active]="selectedStudent?.id === student.id"
+          style="cursor: pointer"
+        >
+          <td>{{ student.firstName }}</td>
+          <td>{{ student.lastName }}</td>
+          <td>{{ student.mobile }}</td>
+          <td>{{ student.email }}</td>
+          <td>{{ student.nic }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Student Detail -->
+  <app-student-detail
+    *ngIf="showDetails"
+    [student]="selectedStudent"
+    (next)="nextStudent()"
+    (prev)="previousStudent()"
+  ></app-student-detail>
+
+</div>

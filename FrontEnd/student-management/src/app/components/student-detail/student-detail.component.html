@@ -1,0 +1,22 @@
+<div *ngIf="student" class="container my-4">
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+      <h4 class="mb-0">Student Details</h4>
+    </div>
+    <div class="card-body">
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item"><strong>First Name:</strong> {{ student.firstName }}</li>
+        <li class="list-group-item"><strong>Last Name:</strong> {{ student.lastName }}</li>
+        <li class="list-group-item"><strong>Mobile:</strong> {{ student.mobile }}</li>
+        <li class="list-group-item"><strong>Email:</strong> {{ student.email }}</li>
+        <li class="list-group-item"><strong>NIC:</strong> {{ student.nic }}</li>
+        <li class="list-group-item"><strong>DOB:</strong> {{ student.dateOfBirth | date }}</li>
+        <li class="list-group-item"><strong>Address:</strong> {{ student.address }}</li>
+      </ul>
+    </div>
+    <div class="card-footer d-flex justify-content-between">
+      <button class="btn btn-outline-primary" (click)="prev.emit()">← Prev</button>
+      <button class="btn btn-primary" (click)="next.emit()">Next →</button>
+    </div>
+  </div>
+</div>
