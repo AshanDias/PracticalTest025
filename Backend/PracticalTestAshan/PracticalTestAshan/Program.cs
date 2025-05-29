@@ -21,10 +21,12 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+        policy
+            .AllowAnyOrigin()    // Allow all origins // development purpose only
+            .AllowAnyMethod()    // Allow all HTTP methods (GET, POST, etc)  // development purpose only
+            .AllowAnyHeader();   // Allow all headers  // development purpose only
     });
 });
-
 var app = builder.Build();
 
 // Middleware
