@@ -1,0 +1,6 @@
+@PracticalTest.Student.Management_HostAddress = http://localhost:5073
+
+GET {{PracticalTest.Student.Management_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
